@@ -1,23 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <lista.h>
 
 // Crea una lista con un nodo.
-void crear(TLista *pLista, int valor)
+void crear(TLista *pLista, const char *valor)
 {
+  if (!pLista)
+    return;
+
   pLista->pPrimero = malloc(sizeof(TNodo));
-  pLista->pPrimero->valor = valor;
+  if (!pLista->pPrimero)
+    return;
+
+  if (valor)
+    pLista->pPrimero->valor = strdup(valor);
+  else
+    pLista->pPrimero->valor = NULL;
+
   pLista->pPrimero->pSiguiente = NULL;
 }
 
 void destruir(TLista *pLista)
 {
-  TNodo *pAux1;
-  struct Nodo *pAux2;
+  if (!pLista)
+    return;
 
-  for (pAux1 = pLista->pPrimero; pAux1 != NULL;)
+  TNodo *pAux1 = pLista->pPrimero;
+  TNodo *pAux2;
+
+  while (pAux1 != NULL)
   {
     pAux2 = pAux1->pSiguiente;
+    free(pAux1->valor);
     free(pAux1);
     pAux1 = pAux2;
   }
@@ -26,25 +41,30 @@ void destruir(TLista *pLista)
 }
 
 // Inserta al ppio de la lista.
-void insertar(TLista *pLista, int valor)
+void insertar(TLista *pLista, const char *valor)
 {
+  if (!pLista)
+    return;
+
   TNodo *pNuevo = malloc(sizeof(TNodo));
   if (!pNuevo)
-  return;
+    return;
 
-  pNuevo->valor = valor;
+  pNuevo->valor = valor ? strdup(valor) : NULL;
   pNuevo->pSiguiente = pLista->pPrimero;
   pLista->pPrimero = pNuevo;
-  
 }
 
-void insertarFinal(TLista *pLista, int valor)
+void insertarFinal(TLista *pLista, const char *valor)
 {
+  if (!pLista)
+    return;
+
   TNodo *pNuevo = malloc(sizeof(TNodo));
   if (!pNuevo)
-  return;
+    return;
 
-  pNuevo->valor = valor;
+  pNuevo->valor = valor ? strdup(valor) : NULL;
   pNuevo->pSiguiente = NULL;
 
   if (pLista->pPrimero == NULL)
@@ -58,13 +78,15 @@ void insertarFinal(TLista *pLista, int valor)
     pRec = pRec->pSiguiente;
 
   pRec->pSiguiente = pNuevo;
-  
 }
 
 // Suponemos n = 1, 2, ...
-void insertarN(TLista *pLista, int index, int valor)
+void insertarN(TLista *pLista, int index, const char *valor)
 {
-   if (index <= 1 || pLista->pPrimero == NULL)
+  if (!pLista)
+    return;
+
+  if (index <= 1 || pLista->pPrimero == NULL)
   {
     insertar(pLista, valor);
     return;
@@ -82,7 +104,7 @@ void insertarN(TLista *pLista, int index, int valor)
   TNodo *pNuevo = malloc(sizeof(TNodo));
   if (!pNuevo)
     return;
-  pNuevo->valor = valor;
+  pNuevo->valor = valor ? strdup(valor) : NULL;
   pNuevo->pSiguiente = pRec->pSiguiente;
   pRec->pSiguiente = pNuevo;
 }
@@ -90,12 +112,13 @@ void insertarN(TLista *pLista, int index, int valor)
 // Elimina el primer elemento de la lista.
 void eliminar(TLista *pLista)
 {
-   if (pLista->pPrimero == NULL)
+  if (!pLista || pLista->pPrimero == NULL)
     return;
 
   TNodo *pRec = pLista->pPrimero;
   if (pRec->pSiguiente == NULL)
   {
+    free(pRec->valor);
     free(pRec);
     pLista->pPrimero = NULL;
     return;
@@ -105,19 +128,21 @@ void eliminar(TLista *pLista)
   while (pRec->pSiguiente->pSiguiente != NULL)
     pRec = pRec->pSiguiente;
 
+  free(pRec->pSiguiente->valor);
   free(pRec->pSiguiente);
   pRec->pSiguiente = NULL;
 }
 
 void eliminarN(TLista *pLista, int index)
 {
-  if (pLista->pPrimero == NULL || index < 1)
+  if (!pLista || pLista->pPrimero == NULL || index < 1)
     return;
 
   if (index == 1)
   {
     TNodo *pTmp = pLista->pPrimero;
     pLista->pPrimero = pTmp->pSiguiente;
+    free(pTmp->valor);
     free(pTmp);
     return;
   }
@@ -135,13 +160,14 @@ void eliminarN(TLista *pLista, int index)
 
   TNodo *pTmp = pRec->pSiguiente;
   pRec->pSiguiente = pTmp->pSiguiente;
+  free(pTmp->valor);
   free(pTmp);
 }
 
-int getElementoN(TLista *pLista, int index)
+char *getElementoN(TLista *pLista, int index)
 {
-  if (pLista->pPrimero == NULL || index < 1)
-    return 0;
+  if (!pLista || pLista->pPrimero == NULL || index < 1)
+    return NULL;
 
   TNodo *pRec = pLista->pPrimero;
   int i = 1;
@@ -152,17 +178,20 @@ int getElementoN(TLista *pLista, int index)
   }
 
   if (pRec == NULL)
-    return 0;
+    return NULL;
 
   return pRec->valor;
 }
 
 void imprimir(TLista *pLista)
 {
+  if (!pLista)
+    return;
+
   TNodo *pRec = pLista->pPrimero;
   while (pRec != NULL)
   {
-    printf("%d ", pRec->valor);
+    printf("%s ", pRec->valor ? pRec->valor : "(null)");
     pRec = pRec->pSiguiente;
   }
   printf("\n");

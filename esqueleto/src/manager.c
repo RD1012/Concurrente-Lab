@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <definitions.h>
+#include <lista.h>
 
 void procesar_argumentos(int argc, char *argv[], char **filename, char **pattern, int *lines);
 void instalar_manejador_senhal();
@@ -57,7 +58,31 @@ void procesar_argumentos(int argc, char *argv[], char **nombrefichero, char **fi
     exit(EXIT_FAILURE);
   }
 
-  //TODO: Validar que los argumentos sean correctos (fichero de texto y fichero de patrones)
+  /* asignar nombres */
+  *nombrefichero = argv[1];
+  *fichero_patrones = argv[2];
+
+  /* validar que el fichero de texto existe y contar lineas */
+  if ((fp = fopen(*nombrefichero, "r")) == NULL)
+  {
+    fprintf(stderr, "Error al abrir el fichero %s\n", *nombrefichero);
+    exit(EXIT_FAILURE);
+  }
+
+  *lineas = 0;
+  char buffer[4096];
+  while (fgets(buffer, sizeof(buffer), fp) != NULL)
+    (*lineas)++;
+
+  fclose(fp);
+
+  /* validar que el fichero de patrones existe (no es necesario abrirlo ahora) */
+  if ((fp = fopen(*fichero_patrones, "r")) == NULL)
+  {
+    fprintf(stderr, "Error al abrir el fichero de patrones %s\n", *fichero_patrones);
+    exit(EXIT_FAILURE);
+  }
+  fclose(fp);
 }
 
 void instalar_manejador_senhal()
@@ -122,7 +147,7 @@ void iniciar_tabla_procesos(int n_procesos_contador, int n_procesos_procesador)
 void crear_procesos(const char *nombre_fichero)
 {
   FILE *fp;
-  char linea[PATH_MAX], numero_linea_str[3];
+  char linea[PATH_MAX], numero_linea_str[16];
   int indice_tabla = 0;
   
   if ((fp = fopen(nombre_fichero, "r")) == NULL)

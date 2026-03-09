@@ -3,7 +3,7 @@
 
 typedef struct Nodo
 {
-  int valor;
+  char *valor;
   struct Nodo *pSiguiente;
 } TNodo;
 
@@ -12,19 +12,19 @@ typedef struct
   TNodo *pPrimero;
 } TLista;
 
-void crear(TLista *pLista, int valor);
+void crear(TLista *pLista, const char *valor);
 void destruir(TLista *pLista);
 
 // 'insertar' inserta al ppio de la lista.
-void insertar(TLista *pLista, int valor);
-void insertarFinal(TLista *pLista, int valor);
-void insertarN(TLista *pLista, int index, int valor);
+void insertar(TLista *pLista, const char *valor);
+void insertarFinal(TLista *pLista, const char *valor);
+void insertarN(TLista *pLista, int index, const char *valor);
 
 // 'elimina' elimina el último de la lista.
 void eliminar(TLista *pLista);
 void eliminarN(TLista *pLista, int index);
 
-int getElementoN(TLista *pLista, int index);
+char *getElementoN(TLista *pLista, int index);
 
 void imprimir(TLista *pLista);
 int longitud(TLista *pLista);
