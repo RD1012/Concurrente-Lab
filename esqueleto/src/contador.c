@@ -1,10 +1,9 @@
 #include <stdlib.h>
+#include <stdio.h>
 
-void contar(char *line, int line_number);
 
 int main(int argc, char *argv[])
 {
-  //TODO comprobar que los parametros que llegan son correcto y llamar a la funcion contar
 
   return EXIT_SUCCESS;
 }
