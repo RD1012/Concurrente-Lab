@@ -50,7 +50,6 @@ int main(int argc, char *argv[])
 void procesar_argumentos(int argc, char *argv[], char **nombrefichero, char **fichero_patrones, int *lineas)
 {
   FILE *fp;
-  int ch;
 
   if (argc != 3)
   {
