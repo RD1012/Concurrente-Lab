@@ -18,8 +18,6 @@ int main(int argc,char *argv[]){
     sem_t *sem_lineas;
     int memoria_llamadas_espera;
     
-	//TODO: Esquema especificado en la práctica.
-	
     // Coge semáforos y memoria compartida
     (void)argc;
     (void)argv;
@@ -30,8 +28,8 @@ int main(int argc,char *argv[]){
     memoria_llamadas_espera = obtener_var(LLAMADASESPERA);
 
 
-    // Realiza una espera entre 1..60 segundos
-    printf("Linea [%d] esperando llamada...\n",pid);
+    // Realiza una espera entre 1..30 segundos
+    printf("Linea[%d] esperando llamada...\n",pid);
     sleep(rand() % 30 + 1);
 
     //Aumenta las llamadas en espera
@@ -43,11 +41,11 @@ int main(int argc,char *argv[]){
 
 
     // Espera telefono libre
-    printf("Linea [%d] esperando telefono libre...Nº Llamadas en espera: %d\n",pid,llamadas_en_espera);
+    printf("Linea[%d] esperando telefono libre... Nº de llamadas en espera: %d\n",pid,llamadas_en_espera);
     wait_sem(sem_telefonos);
 
     // Lanza la llamada
-    printf("Linea [%d] desviando llamada a un telefono...\n",pid);
+    printf("Linea[%d] desviando llamada a un telefono...\n",pid);
     signal_sem(sem_lineas);
 
     sem_close(sem_mutex_espera);

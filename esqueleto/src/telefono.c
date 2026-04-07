@@ -18,9 +18,6 @@ int main(int argc,char *argv[]){
     sem_t *sem_lineas;
     int memoria_llamadas_espera;
 
-
-	//TODO: Esquema según especificado en la práctica.
-
     // Define variables locales
     (void)argc;
     (void)argv;
@@ -36,9 +33,8 @@ int main(int argc,char *argv[]){
     while(1){
 
         // Mensaje de Espera
-        printf("Teléfono [%d] en espera...\n",pid);
+        printf("Telefono[%d] en espera...\n",pid);
         
-		//TODO: Aquí hay que realizar procesos
         signal_sem(sem_telefonos);
         wait_sem(sem_lineas);
         wait_sem(sem_mutex_espera);
@@ -51,10 +47,10 @@ int main(int argc,char *argv[]){
 
 
         // Mensaje de en conversacion
-        printf("Teléfono [%d] en conversacion... Nº Llamadas en espera: %d\n",pid,llamadas_en_espera);
+        printf("Telefono[%d] en conversacion... Nº de llamadas en espera: %d\n",pid,llamadas_en_espera);
 
         // Espera en conversación
-        sleep(rand() % 10 + 10);
+        sleep(rand() % 11 + 10);
         
     }
 
