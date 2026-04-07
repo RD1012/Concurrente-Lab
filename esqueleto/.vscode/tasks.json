@@ -10,8 +10,7 @@
                 "-I${workspaceFolder}/include/",
                 "${file}",
                 "-o",
-                "${workspaceFolder}/exec/${fileBasenameNoExtension}",
-                "${workspaceFolder}/obj/lista.o"
+                "${workspaceFolder}/exec/${fileBasenameNoExtension}"
             ],
             "options": {
                 "cwd": "${fileDirname}"
