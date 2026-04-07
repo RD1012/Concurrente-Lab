@@ -4,28 +4,27 @@ DIRHEA := include/
 DIRSRC := src/
 
 CFLAGS := -I$(DIRHEA) -c -Wall -ggdb
-LDLIBS := -lpthread -lrt
+LDFLAGS := -lpthread -lrt
 CC := gcc
 
-all : dirs manager procesador contador test
+#all : dirs manager barbero cliente
+all : dirs manager telefono linea
 
 dirs:
 	mkdir -p $(DIROBJ) $(DIREXE)
 
-manager: $(DIROBJ)manager.o $(DIROBJ)lista.o 
-	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
+manager: $(DIROBJ)manager.o $(DIROBJ)semaforoI.o $(DIROBJ)memoriaI.o 
+	$(CC) -o $(DIREXE)$@ $^ $(LDFLAGS)
 
-procesador: $(DIROBJ)procesador.o 
-	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
+telefono: $(DIROBJ)telefono.o $(DIROBJ)semaforoI.o $(DIROBJ)memoriaI.o
+	$(CC) -o $(DIREXE)$@ $^ $(LDFLAGS)
 
-contador: $(DIROBJ)contador.o 
-	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
+linea: $(DIROBJ)linea.o $(DIROBJ)semaforoI.o $(DIROBJ)memoriaI.o
+	$(CC) -o $(DIREXE)$@ $^ $(LDFLAGS)
+
 
 $(DIROBJ)%.o: $(DIRSRC)%.c
 	$(CC) $(CFLAGS) $^ -o $@
-
-test:
-	./$(DIREXE)manager data/solution.txt data/patrones.txt
 
 clean : 
 	rm -rf *~ core $(DIROBJ) $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~

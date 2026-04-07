@@ -9,7 +9,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/exec/manager",
-        "args": ["data/solution.txt","data/patrones.txt"],
+        "args": ["3","10"],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}",
         "environment": [],
