@@ -1,5 +1,4 @@
 #include <errno.h>
-#include <linux/limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,8 +27,8 @@ void liberar_recursos();
 int g_num_procesos_telefonos = 0;
 int g_num_procesos_lineas = 0;
 int g_apagado_solicitado = 0;
-struct TProcess_t *g_tabla_procesos_telefonos;
-struct TProcess_t *g_tabla_procesos_lineas;
+struct TProcess_t *g_tabla_procesos_telefonos = NULL;
+struct TProcess_t *g_tabla_procesos_lineas = NULL;
 
 
 // Punto de entrada: inicializa Obelix, crea procesos y gestiona el apagado.
@@ -69,7 +68,6 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-//TODO: Realizar todas las funciones necesarias.
 // Valida y convierte los argumentos de entrada del manager.
 void procesar_argumentos(int argc, char *argv[], int *num_telefonos, int *num_lineas)
 {
@@ -105,19 +103,25 @@ void manejador_senhal(int sign)
     (void)sign;
     g_apagado_solicitado = 1;
 
-    for (i = 0; i < g_num_procesos_lineas; i++)
+    if (g_tabla_procesos_lineas != NULL)
     {
-        if (g_tabla_procesos_lineas[i].pid > 0)
+        for (i = 0; i < g_num_procesos_lineas; i++)
         {
-            kill(g_tabla_procesos_lineas[i].pid, SIGTERM);
+            if (g_tabla_procesos_lineas[i].pid > 0)
+            {
+                kill(g_tabla_procesos_lineas[i].pid, SIGTERM);
+            }
         }
     }
 
-    for (i = 0; i < g_num_procesos_telefonos; i++)
+    if (g_tabla_procesos_telefonos != NULL)
     {
-        if (g_tabla_procesos_telefonos[i].pid > 0)
+        for (i = 0; i < g_num_procesos_telefonos; i++)
         {
-            kill(g_tabla_procesos_telefonos[i].pid, SIGTERM);
+            if (g_tabla_procesos_telefonos[i].pid > 0)
+            {
+                kill(g_tabla_procesos_telefonos[i].pid, SIGTERM);
+            }
         }
     }
 }
@@ -129,12 +133,14 @@ void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea)
     g_num_procesos_telefonos = n_procesos_telefono;
     g_num_procesos_lineas = n_procesos_linea;
 
-    g_tabla_procesos_telefonos = (struct TProcess_t *)calloc(g_num_procesos_telefonos, sizeof(struct TProcess_t));
-    g_tabla_procesos_lineas = (struct TProcess_t *)calloc(g_num_procesos_lineas, sizeof(struct TProcess_t));
+    g_tabla_procesos_telefonos = malloc(g_num_procesos_telefonos * sizeof(struct TProcess_t));
+    g_tabla_procesos_lineas = malloc(g_num_procesos_lineas * sizeof(struct TProcess_t));
 
     if (g_tabla_procesos_telefonos == NULL || g_tabla_procesos_lineas == NULL)
     {
         fprintf(stderr, "Error reservando memoria para tablas de procesos.\n");
+        free(g_tabla_procesos_telefonos);
+        free(g_tabla_procesos_lineas);
         exit(EXIT_FAILURE);
     }
 
@@ -236,6 +242,10 @@ void esperar_procesos()
 void terminar_procesos_especificos(struct TProcess_t *tabla_procesos, int num_procesos)
 {
     int i;
+    if (tabla_procesos == NULL)
+    {
+        return;
+    }
     for (i = 0; i < num_procesos; i++)
     {
         if (tabla_procesos[i].pid <= 0)
@@ -285,4 +295,6 @@ void liberar_recursos()
 
     free(g_tabla_procesos_telefonos);
     free(g_tabla_procesos_lineas);
+    g_tabla_procesos_telefonos = NULL;
+    g_tabla_procesos_lineas = NULL;
 }
