@@ -33,8 +33,7 @@ mqd_t qHandlerLineas[NUMLINEAS];
 
 int main(int argc, char *argv[])
 {
-    // Define variables locales
-
+    
     // Creamos los buzones
     crear_buzones();
 
@@ -62,4 +61,33 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-//TODO
+void crearbuzones() {
+    struct mq_attr attr;
+    char nombre_buzon[64];
+
+    attr.mq_flags = 0;
+    attr.mq_maxmsg = NUMLINEAS; 
+    attr.mq_msgsize = TAMANO_MENSAJES; 
+    attr.mq_curmsgs = 0;
+
+    mq_unlink(BUZON_LLAMADAS); 
+    qHandlerLlamadas = mq_open(BUZON_LLAMADAS, O_CREAT | O_RDWR, 0644, &attr);
+
+    for (int i = 0; i < NUMLINEAS; i++) {
+        sprintf(nombre_buzon, "%s%d", BUZON_LINEAS, i); 
+        mq_unlink(nombre_buzon);
+        qHandlerLineas[i] = mq_open(nombre_buzon, O_CREAT | O_RDWR, 0644, &attr);
+    }
+}
+
+void instalar_manejador_senhal(){
+    signal(SIGINT, manejador_senhal);
+}
+
+void manejador_senhal(int sign) {
+    terminar_procesos();
+    liberar_recursos();
+
+    printf("\n[MANAGER] Finalizacion del programa (Ctrl+C)\n");
+    exit(0);
+}
