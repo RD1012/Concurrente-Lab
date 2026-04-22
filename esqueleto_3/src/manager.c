@@ -91,3 +91,60 @@ void manejador_senhal(int sign) {
     printf("\n[MANAGER] Finalizacion del programa (Ctrl+C)\n");
     exit(0);
 }
+
+void iniciar_tabla_procesos(int n_tele, int n_line){
+g_telefonosProcesses = n_tele;
+g_lineasProcesses = n_line;
+g_process_telefonos_table = malloc(n_tele * sizeof(struct TProcess_t));
+g_process_lineas_table = malloc(n_line * sizeof(struct TProcess_t));
+
+}
+
+void crear_procesos(int numTele, int numLine){
+    //Creamos primeramente las lineas y luego los telefonos
+    for ( int i = 0; i < numLine; i++){
+        lanzar_proceso_linea(i);
+    }
+    printf("[Manager] %d numero de lineas creadas.\n", numLine);
+
+    for (int i = 0; i < numTele; i++){
+        lanzar_proceso_telefono(i);
+    }
+    printf("[Manager] %d numero de telefonos creados", numTele);
+}
+
+void lanzar_proceso_linea(int indice){
+    pid_t pid = fork();
+    if (pid == 0){
+        char arg_id[10];
+        sprintf(arg_id, "%d", indice);
+        execl(RUTA_LINEA, CLASE_LINEA, arg_id, NULL);
+        exit(EXIT_FAILURE);
+    } else {
+        g_process_lineas_table[indice].pid = pid;
+        g_process_lineas_table[indice].pid = CLASE_LINEA;
+    }
+
+}
+
+void lanzar_proceso_telefono(int indice){
+    pid_t pid = fork();
+    if (pid == 0){
+        execl(RUTA_TELEFONO, CLASE_TELEFONO, NULL);
+        exit(EXIT_FAILURE);
+    } else {
+        g_process_telefonos_table[indice].pid = pid;
+        g_process_telefonos_table[indice].clase = CLASE_TELEFONO;
+
+    }
+}
+
+void esperar_procesos(){
+    printf("[Manager] Terminando con cualquier proceso pendiente.....\n");
+    terminar_procesos_especificos(g_process_lineas_table, g_lineasProcesses);
+    terminar_procesos_especificos(g_process_telefonos_table, g_telefonosProcesses);
+}
+
+void terminar_procesos_especificos(struct TProcess_t *table, int num){
+    
+}
