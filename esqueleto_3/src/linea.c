@@ -1,24 +1,20 @@
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-
+#include <fcntl.h>
 #include <mqueue.h>
 #include <definitions.h>
 
-// Modulo principal
-int main(int argc,char *argv[]){
+int main(int argc, char *argv[]) {
 
-    // Define variables locales
     int pid = getpid();
     mqd_t qHandlerLlamadas;
     mqd_t qHandlerLinea;
     char buzonLinea[TAMANO_MENSAJES];
-    char buffer[TAMANO_MENSAJES+1];
+    char buffer[TAMANO_MENSAJES + 1];
 
-    // Inicia Random
     srand(pid);
 
     // Verifica los parámetros
