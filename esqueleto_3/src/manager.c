@@ -55,13 +55,13 @@ int main(int argc, char *argv[])
 
 
     // Finalizamos Manager
-    printf("\n[MANAGER] Terminacion del programa (todos los procesos terminados).\n");
+    printf("\n[MANAGER] Terminacion del programa todos los procesos han terminado.\n");
     liberar_recursos();
 
     return EXIT_SUCCESS;
 }
 
-void crearbuzones() {
+void crear_buzones() {
     struct mq_attr attr;
     char nombre_buzon[64];
 
@@ -140,11 +140,34 @@ void lanzar_proceso_telefono(int indice){
 }
 
 void esperar_procesos(){
+    while (1) pause ();
+}
+
+void terminar_procesos(){
     printf("[Manager] Terminando con cualquier proceso pendiente.....\n");
     terminar_procesos_especificos(g_process_lineas_table, g_lineasProcesses);
     terminar_procesos_especificos(g_process_telefonos_table, g_telefonosProcesses);
 }
 
 void terminar_procesos_especificos(struct TProcess_t *table, int num){
+for(int i = 0; i < num; i++){
+    if (table[i].pid >0){
+        printf("[Manager] Terminando proceso %s [%d]...\n", table[i].clase, table[i].pid);
+        kill(table[i].pid, SIGTERM);
+    }
+}
+}
+
+void liberar_recursos(){
     
+char nombre[64];
+    mq_close(qHandlerLlamadas);
+    mq_unlink(BUZON_LLAMADAS);
+    for (int i = 0; i < NUMLINEAS; i++) {
+        sprintf(nombre, "%s%d", BUZON_LINEAS, i);
+        mq_close(qHandlerLineas[i]);
+        mq_unlink(nombre); 
+    }
+    free(g_process_telefonos_table); 
+    free(g_process_lineas_table);
 }
