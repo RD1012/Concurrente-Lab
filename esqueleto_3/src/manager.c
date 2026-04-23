@@ -72,11 +72,19 @@ void crear_buzones() {
 
     mq_unlink(BUZON_LLAMADAS); 
     qHandlerLlamadas = mq_open(BUZON_LLAMADAS, O_CREAT | O_RDWR, 0644, &attr);
+    if (qHandlerLlamadas == (mqd_t)-1) {
+        fprintf(stderr, "[MANAGER] Error creando %s: %s\n", BUZON_LLAMADAS, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
 
     for (int i = 0; i < NUMLINEAS; i++) {
         sprintf(nombre_buzon, "%s%d", BUZON_LINEAS, i); 
         mq_unlink(nombre_buzon);
         qHandlerLineas[i] = mq_open(nombre_buzon, O_CREAT | O_RDWR, 0644, &attr);
+        if (qHandlerLineas[i] == (mqd_t)-1) {
+            fprintf(stderr, "[MANAGER] Error creando %s: %s\n", nombre_buzon, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
     }
 }
 
@@ -97,6 +105,10 @@ g_telefonosProcesses = n_tele;
 g_lineasProcesses = n_line;
 g_process_telefonos_table = malloc(n_tele * sizeof(struct TProcess_t));
 g_process_lineas_table = malloc(n_line * sizeof(struct TProcess_t));
+if (g_process_telefonos_table == NULL || g_process_lineas_table == NULL) {
+    fprintf(stderr, "[MANAGER] Error reservando memoria para tabla de procesos.\n");
+    exit(EXIT_FAILURE);
+}
 
 }
 
@@ -115,6 +127,10 @@ void crear_procesos(int numTele, int numLine){
 
 void lanzar_proceso_linea(int indice){
     pid_t pid = fork();
+    if (pid < 0) {
+        fprintf(stderr, "[MANAGER] Error en fork() LINEA: %s\n", strerror(errno));
+        return;
+    }
     if (pid == 0){
         char arg_id[10];
         sprintf(arg_id, "%d", indice);
@@ -122,13 +138,17 @@ void lanzar_proceso_linea(int indice){
         exit(EXIT_FAILURE);
     } else {
         g_process_lineas_table[indice].pid = pid;
-        g_process_lineas_table[indice].pid = CLASE_LINEA;
+        g_process_lineas_table[indice].clase = CLASE_LINEA;
     }
 
 }
 
 void lanzar_proceso_telefono(int indice){
     pid_t pid = fork();
+    if (pid < 0) {
+        fprintf(stderr, "[MANAGER] Error en fork() TELEFONO: %s\n", strerror(errno));
+        return;
+    }
     if (pid == 0){
         execl(RUTA_TELEFONO, CLASE_TELEFONO, NULL);
         exit(EXIT_FAILURE);
@@ -154,12 +174,12 @@ for(int i = 0; i < num; i++){
     if (table[i].pid >0){
         printf("[Manager] Terminando proceso %s [%d]...\n", table[i].clase, table[i].pid);
         kill(table[i].pid, SIGTERM);
+        waitpid(table[i].pid, NULL, 0);
     }
 }
 }
 
-void liberar_recursos(){
-    
+void liberar_recursos(){  
 char nombre[64];
     mq_close(qHandlerLlamadas);
     mq_unlink(BUZON_LLAMADAS);
